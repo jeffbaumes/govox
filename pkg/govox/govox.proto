@@ -1,0 +1,161 @@
+syntax = "proto3";
+
+package govox;
+
+service Govox {
+  rpc GetPlanets (GetPlanetsRequest) returns (GetPlanetsResponse) {}
+  rpc GetChunk (GetChunkRequest) returns (GetChunkResponse) {}
+  rpc GetPlanetGeometry (GetPlanetGeometryRequest) returns (GetPlanetGeometryResponse) {}
+  rpc SetCellMaterial (SetCellMaterialRequest) returns (SetCellMaterialResponse) {}
+  rpc SendText (SendTextRequest) returns (SendTextResponse) {}
+  rpc UpdatePlayerState (UpdatePlayerStateRequest) returns (UpdatePlayerStateResponse) {}
+  rpc HitPlayer (HitPlayerRequest) returns (HitPlayerResponse) {}
+}
+
+message GetPlanetsRequest {
+}
+
+message GetPlanetsResponse {
+  repeated PlanetSpec planets = 1;
+}
+
+message PlanetSpec {
+	int64 id = 1;
+	string name = 2;
+	double radius = 3;
+	int64 altCells = 4;
+	int64 orbitPlanet = 5;
+	double orbitDistance = 6;
+	double orbitSeconds = 7;
+  double rotationSeconds = 8;
+  int64 seed = 9;
+  string generatorType = 10;
+}
+
+message GetChunkRequest {
+  int64 planet = 1;
+  ChunkIndex index = 2;
+}
+
+message ChunkIndex {
+  int64 lat = 1;
+  int64 lon = 2;
+  int64 alt = 3;
+}
+
+message GetChunkResponse {
+  Chunk chunk = 1;
+}
+
+message Chunk {
+  repeated CellLat cell = 1;
+  message CellLat {
+    repeated CellAlt cell = 1;
+  }
+  message CellAlt {
+    repeated Cell cell = 1;
+  }
+  bool waitingForData = 2;
+}
+
+enum Material {
+  AIR = 0;
+  GRASS = 1;
+  DIRT = 2;
+  STONE = 3;
+  MOON = 4;
+  ASTEROID = 5;
+  SUN = 6;
+  BLUE_BLOCK = 7;
+  BLUE_SAND = 8;
+  PURPLE_BLOCK = 9;
+  PURPLE_SAND = 10;
+  RED_BLOCK = 11;
+  RED_SAND = 12;
+  YELLOW_BLOCK = 13;
+  YELLOW_SAND = 14;
+  WATER = 15;
+}
+
+message GetPlanetGeometryRequest {
+  int64 planet = 1;
+}
+
+message GetPlanetGeometryResponse {
+  PlanetGeometry geometry = 1;
+}
+
+message PlanetGeometry {
+  repeated AltitudeRow altitude = 1;
+  message AltitudeRow {
+    repeated int64 altitude = 1;
+  }
+  repeated MaterialRow material = 2;
+  message MaterialRow {
+    repeated Material material = 1;
+  }
+  bool isLoading = 3;
+}
+
+message SetCellMaterialRequest {
+  int64 planet = 1;
+  CellIndex index = 2;
+  Cell cell = 3;
+}
+
+message Cell {
+  Material material = 1;
+}
+
+message CellIndex {
+  int64 lat = 1;
+  int64 lon = 2;
+  int64 alt = 3;
+}
+
+message CellLoc {
+  double lat = 1;
+  double lon = 2;
+  double alt = 3;
+}
+
+message SetCellMaterialResponse {
+}
+
+message SendTextRequest {
+  string text = 1;
+}
+
+message SendTextResponse {
+}
+
+message UpdatePlayerStateRequest {
+  string name = 1;
+  repeated double position = 2;
+  repeated double lookDir = 3;
+}
+
+message UpdatePlayerStateResponse {
+}
+
+message HitPlayerRequest {
+  string from = 1;
+  string target = 2;
+  int64 amount = 3;
+}
+
+message HitPlayerResponse {
+}
+
+service Generator {
+  rpc CellMaterial (CellMaterialRequest) returns (CellMaterialResponse) {}
+}
+
+message CellMaterialRequest {
+  CellIndex index = 1;
+  PlanetSpec planet = 2;
+}
+
+message CellMaterialResponse {
+  Cell cell = 1;
+}
